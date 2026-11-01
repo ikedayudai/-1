@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#173b63">
+<title>作業日報</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;color:#182230;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}header{background:#173b63;color:#fff;padding:22px max(18px,calc((100% - 760px)/2))}header h1{font-size:23px;margin:0}main{max-width:760px;margin:22px auto;padding:0 16px}.panel{background:white;border:1px solid #dce3eb;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 2px 8px #172b4408}h2{font-size:19px;margin:0 0 16px}label{display:block;font-weight:650;margin:13px 0 6px}input,textarea{width:100%;font:inherit;padding:12px;border:1px solid #b9c5d2;border-radius:8px;background:#fff}textarea{min-height:90px;resize:vertical}.times{display:grid;grid-template-columns:1fr 1fr;gap:12px}button,.linkbtn{font:inherit;border:0;border-radius:9px;padding:12px 16px;background:#175da8;color:white;font-weight:650;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:#e8eef5;color:#173b63}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.hint{color:#596879;font-size:13px;line-height:1.6}.empty{color:#687789;text-align:center;padding:22px}.item{padding:13px 0;border-top:1px solid #e5eaf0}.item strong{display:block}.item p{margin:6px 0;white-space:pre-wrap}.toplink{color:#fff;text-decoration:underline}@media(max-width:480px){.times{grid-template-columns:1fr}}
+</style></head>
+<body><header><h1>作業日報</h1></header><main>
+<section class="panel"><h2>日報を入力・保存</h2>
+<form id="reportForm">
+<label for="name">名前</label><input id="name" required maxlength="80" autocomplete="name">
+<label for="date">日付</label><input id="date" type="date" required>
+<div class="times"><div><label for="start">開始時間</label><input id="start" type="time" required></div><div><label for="end">終了時間</label><input id="end" type="time" required></div></div>
+<label for="work">作業内容</label><textarea id="work" required maxlength="4000"></textarea>
+<label for="tools">使用機材や道具</label><textarea id="tools" maxlength="2000"></textarea>
+<div class="actions"><button type="submit">日報を保存</button><button type="reset" class="secondary">入力をクリア</button></div>
+<p id="saveMessage" class="hint" role="status"></p>
+</form></section>
+<section class="panel"><h2>日報を検索</h2>
+<label for="q">名前・作業内容で検索</label><input id="q" placeholder="名前または作業内容を入力">
+<label for="searchDate">日付で検索</label><input id="searchDate" type="date">
+<div class="actions"><button id="searchBtn">検索結果を表示</button><button id="clearSearch" class="secondary">条件をクリア</button></div>
+<p class="hint">検索結果は別ページで表示します。</p>
+</section>
+<p class="hint">この試作版の保存先は、入力した端末・ブラウザ内です。別の人や別端末との日報共有には、サーバー側のデータ保存機能が別途必要です。</p>
+</main>
+<script>
+const $=id=>document.getElementById(id),KEY='workReportsV1';
+$('date').value=new Date().toLocaleDateString('sv-SE');
+function read(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return []}}
+$('reportForm').addEventListener('submit',e=>{e.preventDefault();const item={id:Date.now().toString(),name:$('name').value.trim(),date:$('date').value,start:$('start').value,end:$('end').value,work:$('work').value.trim(),tools:$('tools').value.trim()};if(item.end<item.start){$('saveMessage').textContent='終了時間は開始時間以降にしてください。';return}const all=read();all.push(item);localStorage.setItem(KEY,JSON.stringify(all));$('saveMessage').textContent='この端末のブラウザに保存しました。';$('reportForm').reset();$('date').value=new Date().toLocaleDateString('sv-SE')});
+$('searchBtn').addEventListener('click',()=>{const p=new URLSearchParams({q:$('q').value.trim(),date:$('searchDate').value});location.href='results.html?'+p.toString()});
+$('clearSearch').addEventListener('click',()=>{$('q').value='';$('searchDate').value=''});
+</script></body></html>
